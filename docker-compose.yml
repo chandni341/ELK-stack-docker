@@ -1,0 +1,270 @@
+version: '3.5'
+
+# will contain all elasticsearch data.
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+
+secrets:
+  ca.crt:
+    file: ./secrets/certificate_authority/ca/ca.crt
+  elasticsearch.keystore:
+    file: ./secrets/elasticsearch.keystore
+  elastic-stack-ca.p12:
+    file: ./secrets/certificate_authority/elastic-stack-ca.p12
+  elasticsearch01.key:
+    file: ./secrets/certificates/elasticsearch01/elasticsearch01.key
+  elasticsearch01.cert:
+    file: ./secrets/certificates/elasticsearch01/elasticsearch01.crt
+  elasticsearch02.key:
+    file: ./secrets/certificates/elasticsearch02/elasticsearch02.key
+  elasticsearch02.cert:
+    file: ./secrets/certificates/elasticsearch02/elasticsearch02.crt
+  elasticsearch03.key:
+    file: ./secrets/certificates/elasticsearch03/elasticsearch03.key
+  elasticsearch03.cert:
+    file: ./secrets/certificates/elasticsearch03/elasticsearch03.crt
+  kibana.key:
+    file: ./secrets/certificates/kibana/kibana.key
+  kibana.cert:
+    file: ./secrets/certificates/kibana/kibana.crt
+  logstash.pkcs8.key:
+    file: ./secrets/certificates/logstash/logstash.pkcs8.key
+  logstash.key:
+    file: ./secrets/certificates/logstash/logstash.key
+  logstash.p12:
+    file: ./secrets/keystores/logstash/logstash.p12
+  logstash.cert:
+    file: ./secrets/certificates/logstash/logstash.crt
+  filebeat.key:
+    file: ./secrets/certificates/filebeat/filebeat.key
+  filebeat.cert:
+    file: ./secrets/certificates/filebeat/filebeat.crt
+ 
+services:
+  elasticsearch01:
+    container_name: elasticsearch01
+    hostname: elasticsearch01
+    build:
+      context: elasticsearch01/
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    restart: unless-stopped
+    environment:
+      CONFIG_DIR: ${ELASTIC_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ES_JAVA_OPTS: -Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP}
+      bootstrap.memory_lock: "true"
+      #discovery.type: single-node
+    volumes:
+      - data01:${ELASTIC_DIR}
+      - ./elasticsearch01/config/elasticsearch.yml:${ELASTIC_DIR}/config/elasticsearch.yml:ro
+    secrets:
+      - source: elasticsearch.keystore
+        target: ${ELASTIC_DIR}/config/elasticsearch.keystore
+      - source: ca.crt
+        target: ${ELASTIC_DIR}/config/ca.crt
+      - source: elasticsearch01.cert
+        target: ${ELASTIC_DIR}/config/elasticsearch01.crt
+      - source: elasticsearch01.key
+        target: ${ELASTIC_DIR}/config/elasticsearch01.key
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 200000
+        hard: 200000
+    networks:
+      - elk
+      
+  elasticsearch02:
+    container_name: elasticsearch02
+    hostname: elasticsearch02
+    build:
+      context: elasticsearch02/
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    restart: unless-stopped
+    environment:
+      CONFIG_DIR: ${ELASTIC_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ES_JAVA_OPTS: -Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP}
+      bootstrap.memory_lock: "true"
+      #discovery.type: single-node
+    volumes:
+      - data02:${ELASTIC_DIR}
+      - ./elasticsearch02/config/elasticsearch.yml:${ELASTIC_DIR}/config/elasticsearch.yml:ro
+    secrets:
+      - source: elasticsearch.keystore
+        target: ${ELASTIC_DIR}/config/elasticsearch.keystore
+      - source: ca.crt
+        target: ${ELASTIC_DIR}/config/ca.crt
+      - source: elasticsearch02.cert
+        target: ${ELASTIC_DIR}/config/elasticsearch02.crt
+      - source: elasticsearch02.key
+        target: ${ELASTIC_DIR}/config/elasticsearch02.key
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 200000
+        hard: 200000
+    networks:
+      - elk
+      
+  elasticsearch03:
+    container_name: elasticsearch03
+    hostname: elasticsearch03
+    build:
+      context: elasticsearch03/
+      args:
+        ELK_VERSION: ${ELK_VERSION}
+    restart: unless-stopped
+    environment:
+      CONFIG_DIR: ${ELASTIC_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ES_JAVA_OPTS: -Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP}
+      bootstrap.memory_lock: "true"
+      #discovery.type: single-node
+    volumes:
+      - data03:${ELASTIC_DIR}
+      - ./elasticsearch03/config/elasticsearch.yml:${ELASTIC_DIR}/config/elasticsearch.yml:ro
+    secrets:
+      - source: elasticsearch.keystore
+        target: ${ELASTIC_DIR}/config/elasticsearch.keystore
+      - source: ca.crt
+        target: ${ELASTIC_DIR}/config/ca.crt
+      - source: elasticsearch03.cert
+        target: ${ELASTIC_DIR}/config/elasticsearch03.crt
+      - source: elasticsearch03.key
+        target: ${ELASTIC_DIR}/config/elasticsearch03.key
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 200000
+        hard: 200000
+    networks:
+      - elk
+      
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    build:
+      context: kibana/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    volumes:
+      - ./kibana/config/kibana.yml:${KIBANA_DIR}/config/kibana.yml:ro
+    environment:
+      CONFIG_DIR: ${KIBANA_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ENCRYPTION_KEY: ${XPACK_ENCRYPTION_KEY}
+    secrets:
+      - source: ca.crt
+        target: ${KIBANA_DIR}/config/ca.crt
+      - source: kibana.cert
+        target: ${KIBANA_DIR}/config/kibana.crt
+      - source: kibana.key
+        target: ${KIBANA_DIR}/config/kibana.key
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on: 
+      - elasticsearch01
+
+  logstash:
+    container_name: logstash
+    hostname: logstash
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    volumes:
+      - ./logstash/config/logstash.yml:${LOGSTASH_DIR}/config/logstash.yml
+      - ./logstash/pipeline/logstash.conf:${LOGSTASH_DIR}/pipeline/logstash.conf
+      - ./logstash/pipeline/logstash-crsp.conf:${LOGSTASH_DIR}/pipeline/logstash-crsp.conf
+      - ./logstash/logs/LKTransfer/:/LKTransfer
+    environment:
+      path.settings: null
+      CONFIG_DIR: ${LOGSTASH_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      LS_JAVA_OPTS: "-Xmx${LOGSTASH_HEAP} -Xms${LOGSTASH_HEAP}"
+    secrets:
+      - source: ca.crt
+        target: ${LOGSTASH_DIR}/config/ca.crt
+      - source: logstash.cert
+        target: ${LOGSTASH_DIR}/config/logstash.crt
+      - source: logstash.pkcs8.key
+        target: ${LOGSTASH_DIR}/config/logstash.pkcs8.key
+      - source: logstash.key
+        target: ${LOGSTASH_DIR}/config/logstash.key
+      - source: logstash.p12
+        target: ${LOGSTASH_DIR}/config/logstash.p12
+    networks:
+      - elk
+    ports:
+    - "12201:12201/udp"
+    - "5044:5044"
+    - "5045:5045/tcp"
+    - "5046:5046"
+    - "9600:9600"
+    - "5000:5000/tcp"
+    - "5000:5000/udp"
+    depends_on: 
+      - elasticsearch01
+      - kibana
+  
+  filebeat:
+    container_name: filebeat
+    hostname: filebeat
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    command: >
+      bash -c "filebeat -e -strict.perms=false
+      && sh -c 'filebeat -e'"
+    volumes: 
+      - ./filebeat/config/filebeat.yml:${FILEBEAT_DIR}/filebeat.yml:ro
+    environment:
+      CONFIG_DIR: ${FILEBEAT_DIR}/config
+      LS_JAVA_OPTS: "-Xmx${FILEBEAT_HEAP} -Xms${FILEBEAT_HEAP}"
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    secrets:
+      - source: ca.crt
+        target: ${FILEBEAT_DIR}/config/ca.crt
+      - source: filebeat.cert
+        target: ${FILEBEAT_DIR}/config/filebeat.crt
+      - source: filebeat.key
+        target: ${FILEBEAT_DIR}/config/filebeat.key
+    ports:
+      - "9000:9000" 
+    networks:
+      - elk
+    depends_on: 
+      - logstash
+    
+networks:
+  elk:
+    driver: bridge

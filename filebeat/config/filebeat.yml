@@ -1,0 +1,26 @@
+name: filebeat
+setup.template:
+  enabled: true
+output.elasticsearch.username: ${ELASTIC_USERNAME}
+output.elasticsearch.password: ${ELASTIC_PASSWORD}
+path.config: ${CONFIG_DIR}
+
+filebeat.inputs:
+    - type: tcp
+      enabled: true
+      max_message_size: 10MiB
+      host: "filebeat:9000"
+
+output.logstash:
+    enabled: true
+    hosts: ["logstash:5045"]
+    ssl.certificate_authorities: ["${CONFIG_DIR}/ca.crt"]
+    ssl.certificate: "${CONFIG_DIR}/filebeat.crt"
+    ssl.key: "${CONFIG_DIR}/filebeat.key"
+  
+output.elasticsearch:
+  enabled: false
+  hosts: ["https://elasticsearch01:9200"]
+  ssl.certificate_authorities: ["${CONFIG_DIR}/ca.crt"]
+  ssl.certificate: "${CONFIG_DIR}/filebeat.crt"
+  ssl.key: "${CONFIG_DIR}/filebeat.key"

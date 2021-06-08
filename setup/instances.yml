@@ -1,0 +1,43 @@
+instances:
+  - name: elasticsearch01
+    dns:
+      - elasticsearch01
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"
+  - name: elasticsearch02
+    dns:
+      - elasticsearch02
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"
+  - name: elasticsearch03
+    dns:
+      - elasticsearch03
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"      
+  - name: kibana
+    dns:
+      - kibana
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"
+  - name: logstash
+    dns:
+      - logstash
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"
+  - name: filebeat
+    dns:
+      - filebeat
+      - localhost
+    ip:
+      - "0.0.0.0"
+      - "127.0.0.1"
