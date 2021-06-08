@@ -12,13 +12,12 @@ This project was built so that you can test and use built-in features under Elas
 
 This docker-compose project will create the following Elastic containers based on version 7.12.0:
 
-* Elasticsearch
+* Elasticsearch01
+* Elasticsearch02
+* Elasticsearch03
 * Logstash
 * Kibana
-* Packetbeat
 * Filebeat
-* Elastic Agent (Ubuntu 20.04)
-* Metricbeat
 
 ## Setup
 
@@ -34,9 +33,7 @@ ELASTIC_PASSWORD="some_password"
 # Configuration Variables
 ELASTICSEARCH_HEAP="2g"
 LOGSTASH_HEAP="1g"
-PACKETBEAT_HEAP="256m"
 FILEBEAT_HEAP="256m"
-METRICBEAT_HEAP="256m"
 XPACK_ENCRYPTION_KEY="somesuperlongstringlikethisoneMQBbtsynu4bV2uxLy"
 
 # Self signed TLS certificates
@@ -45,9 +42,7 @@ CA_DAYS=3650
 ELASTIC_DIR=/usr/share/elasticsearch
 LOGSTASH_DIR=/usr/share/logstash
 KIBANA_DIR=/usr/share/kibana
-PACKETBEAT_DIR=/usr/share/packetbeat
 FILEBEAT_DIR=/usr/share/filebeat
-METRICBEAT_DIR=/usr/share/metricbeat
 
 # Letsencrypt certificates
 ## Setting STAGING to true means it will generate self-signed certificates
@@ -135,17 +130,3 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. 
-
-## Change Log
-
-Please read [CHANGELOG.md](CHANGELOG.md) for details on features for a specific version of `elk-tls-docker`
-
-## Authors
-
-* Josh Rickard - *Initial work* - [MSAdministrator](https://github.com/msadministrator)
-
-See also the list of [contributors](https://github.com/swimlane/elk-tls-docker/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details
