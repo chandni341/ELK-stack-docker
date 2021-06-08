@@ -122,11 +122,3 @@ Below are a list of features that are being planned for future releases:
 
 * Adding additional services from Elastic
 * Adding certificate authentication for external usage
-
-## Contributing
-
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. 
