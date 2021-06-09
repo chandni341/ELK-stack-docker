@@ -199,7 +199,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./logstash/config/logstash.yml:${LOGSTASH_DIR}/config/logstash.yml
-      - ./logstash/pipeline/logstash.conf:${LOGSTASH_DIR}/pipeline/logstash.conf
+      - ./logstash/config/pipelines.yml:${LOGSTASH_DIR}/config/pipelines.yml
+      #- ./logstash/pipeline/logstash.conf:${LOGSTASH_DIR}/pipeline/logstash.conf
       - ./logstash/pipeline/logstash-crsp.conf:${LOGSTASH_DIR}/pipeline/logstash-crsp.conf
       - ./logstash/logs/LKTransfer/:/LKTransfer
     environment:
