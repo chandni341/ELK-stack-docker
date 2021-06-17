@@ -6,21 +6,29 @@ output.elasticsearch.password: ${ELASTIC_PASSWORD}
 path.config: ${CONFIG_DIR}
 
 filebeat.inputs:
-    - type: tcp
-      enabled: true
-      max_message_size: 10MiB
-      host: "filebeat:9000"
+     - type: log
+       enabled: true
+       json.keys_under_root: true
+       json.add_error_key: true
+       paths: ["/LKLabHub/*.json"]
+      # max_message_size: 10MiB
+       host: "filebeat:9000"
+# filebeat.prospectors:
+     # - input_type: log
+       # paths: ["/LKLabHub/*.json"]
+      
 
 output.logstash:
-    enabled: true
+    enabled: false
     hosts: ["logstash:5045"]
     ssl.certificate_authorities: ["${CONFIG_DIR}/ca.crt"]
     ssl.certificate: "${CONFIG_DIR}/filebeat.crt"
     ssl.key: "${CONFIG_DIR}/filebeat.key"
   
 output.elasticsearch:
-  enabled: false
+  enabled: true
   hosts: ["https://elasticsearch01:9200"]
   ssl.certificate_authorities: ["${CONFIG_DIR}/ca.crt"]
   ssl.certificate: "${CONFIG_DIR}/filebeat.crt"
   ssl.key: "${CONFIG_DIR}/filebeat.key"
+  pipeline: "lklabhub-pipeline-copy"

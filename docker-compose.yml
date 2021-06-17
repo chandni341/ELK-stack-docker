@@ -247,6 +247,7 @@ services:
       && sh -c 'filebeat -e'"
     volumes: 
       - ./filebeat/config/filebeat.yml:${FILEBEAT_DIR}/filebeat.yml:ro
+      - ./filebeat/logs/LKLabHub:/LKLabHub
     environment:
       CONFIG_DIR: ${FILEBEAT_DIR}/config
       LS_JAVA_OPTS: "-Xmx${FILEBEAT_HEAP} -Xms${FILEBEAT_HEAP}"
